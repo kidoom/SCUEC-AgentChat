@@ -1,7 +1,7 @@
 from Agent.LocalAgent.LLM.tools.ResidomLibrary import ScrapeBookInfoTool, ReseachBookMessageTool
 from erniebot_agent.agents import FunctionAgent
 from erniebot_agent.chat_models import ERNIEBot
-from erniebot_agent.memory import WholeMemory, AIMessage, HumanMessage,SystemMessage,LimitTokensMemory
+from erniebot_agent.memory import WholeMemory, AIMessage, HumanMessage,SystemMessage,SlidingWindowMemory,LimitTokensMemory
 import time
 from Agent.config.AgentConfig import load_config, Config
 from Agent.LocalAgent.LLM.RAG.FunctionAgentWithRetrieval import RAGTool
@@ -19,16 +19,16 @@ agent.load_tool(RAGTool())
 
 
 async def predict(message, history):
+    system_message = SystemMessage("你现在是中南民族大学智能助手 一切问题要先考虑中南民族大学")
+    memory.add_message(system_message)
     history_ernie_format = []
     for human, ai in history:
         history_ernie_format.append(HumanMessage(content=message))
         history_ernie_format.append(AIMessage(content=ai))
-    system_message = SystemMessage("你现在是中南民族大学智能助手 一切问题要先考虑中南民族大学")
     history_ernie_format.append(HumanMessage(content=message))
     human = HumanMessage(content=message)
     resp = await agent.run(prompt=human.content)
     ai = AIMessage(content=resp.text)
-    memory.add_message(system_message)
     memory.add_message(human)
     memory.add_message(ai)
     return resp.text

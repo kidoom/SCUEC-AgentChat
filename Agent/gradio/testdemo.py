@@ -51,7 +51,7 @@ chatbot = gr.Chatbot(
 
 with gr.Blocks() as agent:
     with gr.Tab(label="chat"):
-        chat = gr.ChatInterface(slow_echo, chatbot=chatbot)
+        chat = gr.ChatInterface(predict, chatbot=chatbot)
     with gr.Tab(label="作文评分"):
         with gr.Column(scale=15):
             txt1 = gr.Textbox(label="命题标准", max_lines=10)

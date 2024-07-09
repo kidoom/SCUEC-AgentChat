@@ -20,8 +20,7 @@ agent_button = gr.Button("发送")
 
 with gr.Blocks() as agent:
     with gr.Tab(label="chat"):
-
-        chat = gr.ChatInterface(predict, chatbot=chatbot,submit_btn = agent_button)
+        chat = gr.ChatInterface(predict, chatbot=chatbot)
     with gr.Tab(label="作文评分"):
         with gr.Row():
             with gr.Column():
