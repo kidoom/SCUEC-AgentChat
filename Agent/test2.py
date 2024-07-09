@@ -73,7 +73,7 @@ agent = FunctionAgentWithRetrieval(
 # 定义一个查询字符串，这个查询是关于"城乡建设部规章中，城市管理执法第三章，第十三条"的内容。
 query = "中南民族大学奖学金资助标准及名额为"
 # 使用agent的async_run方法来异步执行查询。由于这是异步操作，因此需要使用'await'关键字。
-response =agent.run(query)
+response =agent.run(query,prompt="输出限制为500token,尽量简化输出内容 不要太多")
 messages = response
 pprint(response)
 

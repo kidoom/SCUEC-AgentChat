@@ -1,91 +1,112 @@
-from Agent.config.AgentConfig import load_config, Config
 import os
-from erniebot_agent.agents.function_agent_with_retrieval import FunctionAgentWithRetrieval
-from erniebot_agent.memory.whole_memory import WholeMemory
-from erniebot_agent.chat_models.erniebot import ERNIEBot
-from langchain.text_splitter import SpacyTextSplitter
-from langchain_community.vectorstores import FAISS
-from langchain_community.document_loaders import PyPDFDirectoryLoader,Docx2txtLoader
-from erniebot_agent.extensions.langchain.embeddings import ErnieEmbeddings
-from sklearn.metrics.pairwise import cosine_similarity
-from erniebot_agent.tools import RemoteToolkit
-import pprint
-# 加载全局变量
-load_config()
-llm_type = Config.api_type
-token = Config.access_token
+from erniebot_agent.memory import Message,HumanMessage,FunctionMessage,AIMessage
+from zhipuai import ZhipuAI
+from erniebot_agent.tools.schema import ToolParameterView
+from pydantic import Field
+from erniebot_agent.tools.base import Tool
+from typing import Any, Dict, Type, List
+from Agent.config.AgentConfig import Config,load_RAG_config
+import os
 
-embeddings = ErnieEmbeddings(aistudio_access_token=token, chunk_size=16)
+load_RAG_config()
+api_key = Config.access_token
 
+os.environ["ZHIPUAI_API_KEY"]=api_key
+client = ZhipuAI()
 
-# print(embeddings)
-
-class FaissSearch:
-    def __init__(self, db, embeddings):
-        # 类的初始化方法，接收一个数据库实例并将其存储在类的实例变量 self.db 中，接收一个embeddings方法传到self.embeddings中
-        self.db = db
-        self.embeddings = embeddings
-
-    def search(self, query: str, top_k: int = 10, **kwargs):
-        # 定义一个搜索方法，接受一个查询字符串 'query' 和一个整数 'top_k'，默认为 10
-        docs = self.db.similarity_search(query, top_k)
-        # 调用数据库的 similarity_search 方法来获取与查询最相关的文档
-        para_result = self.embeddings.embed_documents([i.page_content for i in docs])
-        # 对获取的文档内容进行嵌入（embedding），以便进行相似性比较
-        query_result = self.embeddings.embed_query(query)
-        # 对查询字符串也进行嵌入
-        similarities = cosine_similarity([query_result], para_result).reshape((-1,))
-        # 计算查询嵌入和文档嵌入之间的余弦相似度
-        retrieval_results = []
-        for index, doc in enumerate(docs):
-            retrieval_results.append(
-                {"content": doc.page_content, "score": similarities[index], "title": doc.metadata["source"]}
-            )
-        # 遍历每个文档，将内容、相似度得分和来源标题作为字典添加到结果列表中
-        return retrieval_results  # 返回包含搜索结果的列表
+# response = client.chat.completions.create(
+#     model="glm-4",  # 填写需要调用的模型名称
+#     messages=[
+#         {"role": "user", "content": "中南民族大学学生奖学金制度是什么"},
+#     ],
+#     tools=[
+#         {
+#             "type": "retrieval",
+#             "retrieval": {
+#                 "knowledge_id": "1810614553705422848",
+#                 "prompt_template": "从文档\n\"\"\"\n{{knowledge}}\n\"\"\"\n中找问题\n\"\"\"\n{{question}}\n\"\"\"\n的答案，找到答案就仅使用文档语句回答问题，找不到答案就用自身知识回答并且告诉用户该信息不是来自文档。\n不要复述问题，直接开始回答。"
+#             }
+#         }
+#     ],
+#     stream=True,
+# )
+# resp = ""
+# for chunk in response:
+#     resp += chunk.choices[0].delta.content  # 假设 ChoiceDelta 对象有一个 text 属性
+# print(resp)
 
 
-faiss_name = "faiss_student_index"
-if os.path.exists(faiss_name):
-    db = FAISS.load_local(faiss_name, embeddings,allow_dangerous_deserialization=True)
-else:
-    loader = PyPDFDirectoryLoader("D:\SCUEC-AgentChat\student_message")
-    documents = loader.load()
-    print(documents)
-    text_splitter = SpacyTextSplitter(pipeline="zh_core_web_sm", chunk_size=320, chunk_overlap=0)
-    docs = text_splitter.split_documents(documents)
-    db = FAISS.from_documents(docs, embeddings)
-    db.save_local(faiss_name)
+class RetrievalInfoOutPut(ToolParameterView):
+    question: str = Field(description="问题描述 通过知识库检索")
 
 
-
-faiss_search = FaissSearch(db=db, embeddings=embeddings)
-# 创建一个ERNIEBot实例，使用"ernie-3.5"模型。
-llm = ERNIEBot(model="ernie-3.5",access_token=token,api_type=llm_type)
-# 创建一个WholeMemory实例。这是一个用于存储对话历史和上下文信息的类，有助于模型理解和持续对话。
-memory = WholeMemory()
-# 调用一个文本转语音的工具。
-tts_tool = RemoteToolkit.from_aistudio("texttospeech").get_tools()
-# 创建一个FunctionAgentWithRetrieval实例。这个代理将使用上面创建的ERNIEBot模型、WholeMemory和faiss_search，同时传入了一个名为tts_tool的工具。
-agent = FunctionAgentWithRetrieval(
-    llm=llm, tools=tts_tool, memory=memory, knowledge_base=faiss_search, threshold=0.5,token_limit=500
-)
-# 定义一个查询字符串，这个查询是关于"城乡建设部规章中，城市管理执法第三章，第十三条"的内容。
-query = "中南民族大学奖学金资助标准及名额为"
-# 使用agent的async_run方法来异步执行查询。由于这是异步操作，因此需要使用'await'关键字。
-response =agent.run(query)
-messages = response
-pprint(response)
+class RAGResultOutPut(ToolParameterView):
+    result: str = Field(description="检索知识库后返回的值")
 
 
+class RAGTool(Tool):
+    description: str = "从指定路由中爬取书籍信息"
+    input_type: Type[ToolParameterView] = RAGResultOutPut
+    output_type: Type[ToolParameterView] = RAGResultOutPut
+
+    async  def __call__(self, question:str) -> Dict[str,Any]:
+        client = ZhipuAI(api_key=os.getenv("ZHIPUAI_API_KEY"))
+        response = client.chat.completions.create(
+            model="glm-4",
+            messages=[
+                {"role": "user", "content": f"{question}"},
+            ],
+            tools=[
+                {
+                    "type": "retrieval",
+                    "retrieval": {
+                        "knowledge_id": "1810614553705422848",
+                        "prompt_template": "从文档\n\"\"\"\n{{knowledge}}\n\"\"\"\n中找问题\n\"\"\"\n{{question}}\n\"\"\"\n的答案，找到答案就仅使用文档语句回答问题，找不到答案就用自身知识回答并且告诉用户该信息不是来自文档。\n不要复述问题，直接开始回答。"
+                    }
+                }
+            ],
+            stream=True,
+        )
+        resp = ""
+        for chunk in response:
+            resp += chunk.choices[0].delta.content  # 假设 ChoiceDelta 对象有一个 text 属性
+        return {"result":f"{resp}"}
 
 
+    @property
+    def examples(self) -> List[Message]:
+        return [
+            HumanMessage(content="我们学校的留学生奖学金制度是什么"),
+            AIMessage(
+                "",
+                function_call={
+                    "name":self.tool_name,
+                    "thoughts":f"用户想查询 中南民族大学的留学生奖金制度，我应该使用{self.tool_name}这个工具来获取具体信息，并返回数据",
+                    "arguments": f'question:{self.input_type}',
+                }
+            ),
+            FunctionMessage(name=self.tool_name,content=("""
+            中南民族大学学生奖学金制度包括以下内容：
+- 奖学金名额为在校留学生总数的50%。
+- 学校奖学金分为三等：
+  - 一等奖学金名额占奖学金名额总数的30%，额度为学费的100%。
+  - 二等奖学金名额占奖学金名额总数的40%，额度为学费的60%。
+  - 三等奖学金名额占奖学金名额总数的30%，额度为学费的30%。
+- 奖学金获得者按照中南民族大学全日制本科生、硕士研究生、博士研究生规定的学习期限享受相应年限的奖学金。
+- 在校的来华留学生奖学金按照上一学年的平均成绩和相关综合表现进行评定。
 
+具体标准参照中南民族大学学生工作部（处）、教务处、研究生院（部）等部门的相关规定执行。奖学金申请者还需满足一系列具体条件，如非中国国籍、身心健康、友好遵守中国法律法规、学习阶段及成绩要求等。
+            """)),
+            AIMessage(content=("""
+            中南民族大学学生奖学金制度包括以下内容：
+- 奖学金名额为在校留学生总数的50%。
+- 学校奖学金分为三等：
+  - 一等奖学金名额占奖学金名额总数的30%，额度为学费的100%。
+  - 二等奖学金名额占奖学金名额总数的40%，额度为学费的60%。
+  - 三等奖学金名额占奖学金名额总数的30%，额度为学费的30%。
+- 奖学金获得者按照中南民族大学全日制本科生、硕士研究生、博士研究生规定的学习期限享受相应年限的奖学金。
+- 在校的来华留学生奖学金按照上一学年的平均成绩和相关综合表现进行评定。
 
-
-
-
-
-
-
-
+具体标准参照中南民族大学学生工作部（处）、教务处、研究生院（部）等部门的相关规定执行。奖学金申请者还需满足一系列具体条件，如非中国国籍、身心健康、友好遵守中国法律法规、学习阶段及成绩要求等。
+            """))
+        ]
