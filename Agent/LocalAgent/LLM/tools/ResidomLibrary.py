@@ -5,7 +5,7 @@ from typing import Any, Dict, Type, List
 from urllib.parse import urlencode, urljoin
 
 import requests
-from erniebot_agent.memory import HumanMessage, AIMessage,Message,FunctionMessage
+from erniebot_agent.memory import HumanMessage, AIMessage, Message, FunctionMessage
 from erniebot_agent.tools.base import Tool
 from erniebot_agent.tools.schema import ToolParameterView
 from lxml import html
@@ -165,30 +165,18 @@ class ReseachBookMessageTool(Tool):
         search_result_html = search_books_by_title(name)
         book_links = parse_book_links(search_result_html)
         full_urls = get_full_urls(book_links)
-
-        # 启动无头浏览器
         driver = webdriver.Chrome(options=chrome_options)
         driver.get(full_urls[0])
-
-        # 等待页面加载
         time.sleep(5)  # 等待 5 秒
-
-        # 获取页面内容
         page_content = driver.page_source
         driver.quit()
-
-        # 解析 HTML 内容
         tree = html.fromstring(page_content)
-
-        # 使用 XPath 提取所有符合条件的 <tr> 元素
         rows = tree.xpath('//tr[@align="left" and contains(@class, "whitetext")]')
-
-        # 提取数据并封装到字典中
         book_message_list = []
         index = 1  # 独立编号
         for row in rows:
             cells = row.xpath('./td')
-            if len(cells) >= 8:  # 确保有足够的单元格
+            if len(cells) >= 8:
                 status = cells[4].text_content().strip()
                 if '可借' in status:
                     data = {
@@ -213,19 +201,22 @@ class ReseachBookMessageTool(Tool):
                     "arguments": '{"name":"斗罗大陆"}',
                 },
             ),
-            FunctionMessage(name ="ReseachBookMessageTool" ,content=('{"result":"您好，斗罗大陆 这本书目前有多个可借的副本。以下是部分副本的借阅信息：1. 编号：I247.5/0031/  10，状态：可借，位置：[链接]("http://210.42.146.25:8081/Default.aspx?BookID=1862332")2. 编号：I247.5/0031/  10，状态：可借，位置：[链接](""http://210.42.146.25:8081/Default.aspx?BookID=1862328)...（注：这里只列出了部分副本的借阅信息，您可以选择其中一个位置进行借阅）"}')),
-            AIMessage(content=('{"result":"您好，斗罗大陆 这本书目前有多个可借的副本。以下是部分副本的借阅信息：1. 编号：I247.5/0031/  10，状态：可借，位置：[链接]("http://210.42.146.25:8081/Default.aspx?BookID=1862332")2. 编号：I247.5/0031/  10，状态：可借，位置：[链接](""http://210.42.146.25:8081/Default.aspx?BookID=1862328)...（注：这里只列出了部分副本的借阅信息，您可以选择其中一个位置进行借阅）"}')),
+            FunctionMessage(name="ReseachBookMessageTool", content=(
+                '{"result":"您好，斗罗大陆 这本书目前有多个可借的副本。以下是部分副本的借阅信息：1. 编号：I247.5/0031/  10，状态：可借，位置：[链接]("http://210.42.146.25:8081/Default.aspx?BookID=1862332")2. 编号：I247.5/0031/  10，状态：可借，位置：[链接](""http://210.42.146.25:8081/Default.aspx?BookID=1862328)...（注：这里只列出了部分副本的借阅信息，您可以选择其中一个位置进行借阅）"}')),
+            AIMessage(content=(
+                '{"result":"您好，斗罗大陆 这本书目前有多个可借的副本。以下是部分副本的借阅信息：1. 编号：I247.5/0031/  10，状态：可借，位置：[链接]("http://210.42.146.25:8081/Default.aspx?BookID=1862332")2. 编号：I247.5/0031/  10，状态：可借，位置：[链接](""http://210.42.146.25:8081/Default.aspx?BookID=1862328)...（注：这里只列出了部分副本的借阅信息，您可以选择其中一个位置进行借阅）"}')),
 
             HumanMessage("去哪里可以借阅 明朝那些事儿"),
             AIMessage(
                 "",
                 function_call={
-                    "name":self.tool_name,
-                    "thoughts":f"用户想知道 明朝那些事儿 在哪里可以借阅，我可以使用{self.tool_name}来获取概述信息，并且提取书籍位置 借阅状态",
-                    "arguments":'{"name":"明朝那些事儿"}',
+                    "name": self.tool_name,
+                    "thoughts": f"用户想知道 明朝那些事儿 在哪里可以借阅，我可以使用{self.tool_name}来获取概述信息，并且提取书籍位置 借阅状态",
+                    "arguments": '{"name":"明朝那些事儿"}',
                 },
             ),
-            FunctionMessage(name ="ReseachBookMessageTool" ,content=('{"result":"您好，明朝那些事儿 这本书目前有多个可借的副本。以下是部分副本的借阅信息：1. 编号：I247.5/0031/  10，状态：可借，位置：[链接]("http://210.42.146.25:8081/Default.aspx?BookID=1862332")2. 编号：I247.5/0031/  10，状态：可借，位置：[链接](""http://210.42.146.25:8081/Default.aspx?BookID=1862328)...（注：这里只列出了部分副本的借阅信息，您可以选择其中一个位置进行借阅）"}')),
+            FunctionMessage(name="ReseachBookMessageTool", content=(
+                '{"result":"您好，明朝那些事儿 这本书目前有多个可借的副本。以下是部分副本的借阅信息：1. 编号：I247.5/0031/  10，状态：可借，位置：[链接]("http://210.42.146.25:8081/Default.aspx?BookID=1862332")2. 编号：I247.5/0031/  10，状态：可借，位置：[链接](""http://210.42.146.25:8081/Default.aspx?BookID=1862328)...（注：这里只列出了部分副本的借阅信息，您可以选择其中一个位置进行借阅）"}')),
             AIMessage(content=(
                 '{"result":"您好，明朝那些事儿 这本书目前有多个可借的副本。以下是部分副本的借阅信息：1. 编号：I247.5/0031/  10，状态：可借，位置：[链接]("http://210.42.146.25:8081/Default.aspx?BookID=1862332")2. 编号：I247.5/0031/  10，状态：可借，位置：[链接](""http://210.42.146.25:8081/Default.aspx?BookID=1862328)...（注：这里只列出了部分副本的借阅信息，您可以选择其中一个位置进行借阅）"}')),
         ]
