@@ -37,7 +37,7 @@ client = ZhipuAI()
 
 
 class RetrievalInfoOutPut(ToolParameterView):
-    question: str = Field(description="问题描述 通过知识库检索")
+    message: str = Field(description="问题描述 通过知识库检索")
 
 
 class RAGResultOutPut(ToolParameterView):
@@ -45,16 +45,16 @@ class RAGResultOutPut(ToolParameterView):
 
 
 class RAGTool(Tool):
-    description: str = "从指定路由中爬取书籍信息"
+    description: str = " 询问关于中南民大信息 通过知识库检索"
     input_type: Type[ToolParameterView] = RAGResultOutPut
     output_type: Type[ToolParameterView] = RAGResultOutPut
 
-    async def __call__(self, question:str) -> Dict[str,Any]:
+    async def __call__(self, message:str) -> Dict[str,Any]:
             client = ZhipuAI(api_key=os.getenv("ZHIPUAI_API_KEY"))
             response = client.chat.completions.create(
                 model="glm-4",
                 messages=[
-                    {"role": "user", "content": f"{question}"},
+                    {"role": "user", "content": f"{message}"},
                 ],
                 tools=[
                     {
@@ -81,7 +81,7 @@ class RAGTool(Tool):
                 function_call={
                     "name":self.tool_name,
                     "thoughts":f"用户想查询 中南民族大学的留学生奖金制度，我应该使用{self.tool_name}这个工具来获取具体信息，并返回数据",
-                    "arguments": f'question:{self.input_type}',
+                    "arguments": '{"message":"中南民族大学的留学生奖金制度"}',
                 }
             ),
             FunctionMessage(name=self.tool_name,content=("""
@@ -116,7 +116,7 @@ class RAGTool(Tool):
                 function_call={
                     "name":self.tool_name,
                     "thoughts":f"用户想查询 中南民族大学校内无息借款管理办法，我应该使用{self.tool_name}这个工具来获取具体信息，并返回数据",
-                    "arguments": f'question:{self.input_type}',
+                    "arguments": '{"message":"中南民族大学校内无息借款管理办法"}',
                 }),
             FunctionMessage(name=f"{self.tool_name}",content="中南民族大学校内无息借款管理办法是关于校内无息借款的申请条件、审批流程、监督管理以及附则等一系列规定的试行办法。"),
             AIMessage(content="中南民族大学校内无息借款管理办法是关于校内无息借款的申请条件、审批流程、监督管理以及附则等一系列规定的试行办法。")

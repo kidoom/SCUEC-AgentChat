@@ -19,8 +19,9 @@ chatbot = gr.Chatbot(
 agent_button = gr.Button("发送")
 
 with gr.Blocks() as agent:
-    with gr.Tab(label="chat"):
-        chat = gr.ChatInterface(predict, chatbot=chatbot)
+    with gr.Tab(label="聊天"):
+        chat = gr.ChatInterface(predict, chatbot=chatbot,title="民大小助手")
+
     with gr.Tab(label="作文评分"):
         with gr.Row():
             with gr.Column():
@@ -38,3 +39,4 @@ with gr.Blocks() as agent:
                 b.click(RateArticleTool, inputs=[txt1, txt2], outputs=result)
 
 agent.launch()
+

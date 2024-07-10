@@ -1,0 +1,9 @@
+Agent==0.1.2
+dashscope==1.20.0
+erniebot_agent==0.5.2
+gradio==4.37.2
+lxml==5.2.2
+pydantic==2.8.2
+Requests==2.32.3
+selenium==4.22.0
+zhipuai==2.0.1

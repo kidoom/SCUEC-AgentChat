@@ -1,0 +1,140 @@
+卷 Data 的文件夹 PATH 列表
+卷序列号为 401C-D851
+D:.
+├─.idea
+│  └─inspectionProfiles
+└─Agent
+    ├─.idea
+    │  └─inspectionProfiles
+    ├─config
+    │  └─__pycache__
+    ├─ERNIE-SDK
+    │  ├─.github
+    │  │  └─workflows
+    │  ├─.idea
+    │  │  └─inspectionProfiles
+    │  ├─docs
+    │  │  ├─blog
+    │  │  ├─cookbooks
+    │  │  ├─img
+    │  │  ├─modules
+    │  │  ├─package
+    │  │  │  └─erniebot_agent
+    │  │  ├─quickstart
+    │  │  └─sdk
+    │  │      ├─api_reference
+    │  │      └─guides
+    │  ├─erniebot
+    │  │  ├─build
+    │  │  │  ├─bdist.win-amd64
+    │  │  │  └─lib
+    │  │  │      └─erniebot
+    │  │  │          ├─backends
+    │  │  │          ├─resources
+    │  │  │          │  └─abc
+    │  │  │          └─utils
+    │  │  ├─examples
+    │  │  │  ├─cookbook
+    │  │  │  │  └─data
+    │  │  │  ├─function_calling
+    │  │  │  ├─quick_start
+    │  │  │  └─retrieval_function_call
+    │  │  ├─src
+    │  │  │  ├─erniebot
+    │  │  │  │  ├─backends
+    │  │  │  │  ├─resources
+    │  │  │  │  │  └─abc
+    │  │  │  │  └─utils
+    │  │  │  └─erniebot.egg-info
+    │  │  └─tests
+    │  └─erniebot-agent
+    │      ├─applications
+    │      │  ├─eb-agent-qa-bot
+    │      │  ├─erniebot_researcher
+    │      │  │  └─tools
+    │      │  └─rpg_game
+    │      ├─build
+    │      │  ├─bdist.win-amd64
+    │      │  └─lib
+    │      │      └─erniebot_agent
+    │      │          ├─agents
+    │      │          │  ├─callback
+    │      │          │  │  └─handlers
+    │      │          │  └─mixins
+    │      │          ├─chat_models
+    │      │          ├─extensions
+    │      │          │  └─langchain
+    │      │          │      ├─chat_models
+    │      │          │      ├─embeddings
+    │      │          │      └─llms
+    │      │          ├─file
+    │      │          ├─memory
+    │      │          ├─prompt
+    │      │          ├─retrieval
+    │      │          ├─tools
+    │      │          └─utils
+    │      ├─cookbook
+    │      ├─src
+    │      │  ├─erniebot_agent
+    │      │  │  ├─agents
+    │      │  │  │  ├─callback
+    │      │  │  │  │  └─handlers
+    │      │  │  │  └─mixins
+    │      │  │  ├─chat_models
+    │      │  │  ├─extensions
+    │      │  │  │  └─langchain
+    │      │  │  │      ├─chat_models
+    │      │  │  │      ├─embeddings
+    │      │  │  │      └─llms
+    │      │  │  ├─file
+    │      │  │  ├─memory
+    │      │  │  ├─prompt
+    │      │  │  ├─retrieval
+    │      │  │  ├─tools
+    │      │  │  └─utils
+    │      │  └─erniebot_agent.egg-info
+    │      └─tests
+    │          ├─chat_models
+    │          ├─fixtures
+    │          │  ├─openapis
+    │          │  └─tools
+    │          ├─integration_tests
+    │          │  ├─agents
+    │          │  ├─apihub
+    │          │  ├─chat_models
+    │          │  ├─extensions
+    │          │  │  └─langchain
+    │          │  │      ├─chat_models
+    │          │  │      ├─embeddings
+    │          │  │      └─llms
+    │          │  └─tools
+    │          └─unit_tests
+    │              ├─agents
+    │              │  └─callback
+    │              ├─chat_model
+    │              ├─file
+    │              ├─memory
+    │              ├─prompt
+    │              ├─retrieval
+    │              ├─testing_utils
+    │              │  └─mocks
+    │              └─tools
+    ├─FastApi
+    │  ├─func
+    │  │  └─__pycache__
+    │  ├─model
+    │  │  └─__pycache__
+    │  ├─routers
+    │  │  └─__pycache__
+    │  └─__pycache__
+    ├─gradio
+    └─LocalAgent
+        ├─LLM
+        │  ├─RAG
+        │  │  └─__pycache__
+        │  ├─tools
+        │  │  └─__pycache__
+        │  └─__pycache__
+        └─view
+            └─ClickFunc
+                └─__pycache__
