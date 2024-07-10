@@ -24,6 +24,14 @@
 pip install -r requirements.txt
 ```
 
+授权
+
+```
+config中yaml 分别对应ERNIE 魔搭 智谱 API_Key 
+```
+
+
+
 启动
 
 ```
