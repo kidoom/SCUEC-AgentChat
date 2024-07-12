@@ -25,7 +25,7 @@ with gr.Blocks() as agent:
     with gr.Tab(label="作文评分"):
         with gr.Row():
             with gr.Column():
-                file = gr.File(type="filepath")
+                file = gr.Image(type="filepath",sources=["upload"])
                 OCR_text = gr.Textbox(label="识别结果", show_copy_button=True)
                 OCR_button = gr.Button("开始识别")
                 OCR_button.click(fn=OCRTool, inputs=file, outputs=OCR_text)

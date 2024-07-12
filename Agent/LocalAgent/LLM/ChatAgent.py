@@ -48,7 +48,7 @@ callbacks = [agent_callback_handler]
 
 memory = LimitTokensMemory(max_token_limit=50000)
 
-LLM = ERNIEBot(model="ernie-longtext", api_type=llm_type, access_token=token)
+LLM = ERNIEBot(model="ernie-3.5-8k", api_type=llm_type, access_token=token)
 agent = FunctionAgent(llm=LLM, tools=[ScrapeBookInfoTool()], memory=memory, callbacks=callbacks)
 agent.load_tool(ReseachBookMessageTool())
 agent.load_tool(RAGTool())

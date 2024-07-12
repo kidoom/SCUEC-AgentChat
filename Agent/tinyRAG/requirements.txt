@@ -1,0 +1,14 @@
+openai==1.13.3
+zhipuai==2.0.1
+numpy==1.23.5
+python-dotenv==1.0.0
+torch
+torchvision
+torchaudio
+transformers==4.38.2
+tqdm==4.66.1
+PyPDF2==3.0.1
+markdown==3.6
+html2text==2024.2.26
+tiktoken==0.5.2
+beautifulsoup4==4.12.2
